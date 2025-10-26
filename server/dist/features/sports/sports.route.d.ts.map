@@ -1,1 +1,1 @@
-{"version":3,"file":"sports.route.d.ts","sourceRoot":"","sources":["../../../src/features/sports/sports.route.ts"],"names":[],"mappings":""}
+{"version":3,"file":"sports.route.d.ts","sourceRoot":"","sources":["../../../src/features/sports/sports.route.ts"],"names":[],"mappings":"AAAA,OAAO,KAAK,EAAE,eAAe,EAAE,MAAM,SAAS,CAAC;AAG/C,iBAAe,YAAY,CAAC,OAAO,EAAE,eAAe,iBAEnD;AAED,eAAe,YAAY,CAAC"}
