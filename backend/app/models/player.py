@@ -30,6 +30,7 @@ class Player(SQLModel, table=True):
     sport: Sport
     team: str
     real_position: str
+    slates: List["PlayerSlate"] = Relationship(back_populates="player")
 
 class PlayerSlate(SQLModel, table=True):
     __tablename__ = "player_slate"
@@ -40,6 +41,7 @@ class PlayerSlate(SQLModel, table=True):
     salary: int
     projection: float
     slot_eligibility: List["PlayerSlotEligibility"] = Relationship(back_populates="player_slate")
+    player: Optional["Player"] = Relationship(back_populates="slates")
 
 class PlayerSlotEligibility(SQLModel, table=True):
     __tablename__ = "player_slot_eligibility"
