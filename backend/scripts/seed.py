@@ -1,5 +1,6 @@
 from app.db import engine
 from app.models import Player, PlayerSlate, PlayerSlotEligibility, Sport, ContestType, EligiblePosition
+from app.optimizer.compound_slots import get_extra_slots
 from sqlmodel import Session
 
 players_data = [
@@ -10,7 +11,7 @@ players_data = [
         "real_position": "RB",
         "salary": 9200,
         "projection": 22.1,
-        "slots": ["RB", "FLEX"],
+        "slots": ["RB"],
     },
     {
         "name": "Josh Allen",
@@ -46,7 +47,7 @@ players_data = [
         "real_position": "RB",
         "salary": 7600,
         "projection": 17.5,
-        "slots": ["RB", "FLEX"],
+        "slots": ["RB"],
     },
     {
         "name": "Breece Hall",
@@ -55,7 +56,7 @@ players_data = [
         "real_position": "RB",
         "salary": 6900,
         "projection": 15.8,
-        "slots": ["RB", "FLEX"],
+        "slots": ["RB"],
     },
     {
         "name": "Jahmyr Gibbs",
@@ -64,7 +65,7 @@ players_data = [
         "real_position": "RB",
         "salary": 6600,
         "projection": 14.9,
-        "slots": ["RB", "FLEX"],
+        "slots": ["RB"],
     },
     {
         "name": "Rachaad White",
@@ -73,7 +74,7 @@ players_data = [
         "real_position": "RB",
         "salary": 5200,
         "projection": 11.2,
-        "slots": ["RB", "FLEX"],
+        "slots": ["RB"],
     },
     {
         "name": "Justin Jefferson",
@@ -82,7 +83,7 @@ players_data = [
         "real_position": "WR",
         "salary": 8800,
         "projection": 19.6,
-        "slots": ["WR", "FLEX"],
+        "slots": ["WR"],
     },
     {
         "name": "CeeDee Lamb",
@@ -91,7 +92,7 @@ players_data = [
         "real_position": "WR",
         "salary": 8300,
         "projection": 18.2,
-        "slots": ["WR", "FLEX"],
+        "slots": ["WR"],
     },
     {
         "name": "Amon-Ra St. Brown",
@@ -100,7 +101,7 @@ players_data = [
         "real_position": "WR",
         "salary": 7900,
         "projection": 17.4,
-        "slots": ["WR", "FLEX"],
+        "slots": ["WR"],
     },
     {
         "name": "A.J. Brown",
@@ -109,7 +110,7 @@ players_data = [
         "real_position": "WR",
         "salary": 7200,
         "projection": 15.9,
-        "slots": ["WR", "FLEX"],
+        "slots": ["WR"],
     },
     {
         "name": "DK Metcalf",
@@ -118,7 +119,7 @@ players_data = [
         "real_position": "WR",
         "salary": 6400,
         "projection": 13.7,
-        "slots": ["WR", "FLEX"],
+        "slots": ["WR"],
     },
     {
         "name": "Tank Dell",
@@ -127,7 +128,7 @@ players_data = [
         "real_position": "WR",
         "salary": 4900,
         "projection": 10.1,
-        "slots": ["WR", "FLEX"],
+        "slots": ["WR"],
     },
     {
         "name": "Travis Kelce",
@@ -136,7 +137,7 @@ players_data = [
         "real_position": "TE",
         "salary": 6800,
         "projection": 14.5,
-        "slots": ["TE", "FLEX"],
+        "slots": ["TE"],
     },
     {
         "name": "Sam LaPorta",
@@ -145,7 +146,7 @@ players_data = [
         "real_position": "TE",
         "salary": 5600,
         "projection": 11.8,
-        "slots": ["TE", "FLEX"],
+        "slots": ["TE"],
     },
     {
         "name": "Trey McBride",
@@ -154,7 +155,7 @@ players_data = [
         "real_position": "TE",
         "salary": 4200,
         "projection": 8.9,
-        "slots": ["TE", "FLEX"],
+        "slots": ["TE"],
     },
     {
         "name": "49ers",
@@ -204,6 +205,12 @@ with Session(engine) as session:
             slot_eligibility = PlayerSlotEligibility(
                 slot=slot,
                 player_slate=slate,
+            )
+        extra_slots = get_extra_slots("DraftKings", data["sport"].value, data["real_position"])
+        for slot in extra_slots:
+            slot_eligibility = PlayerSlotEligibility(
+                slot=slot,
+                player_slate=slate
             )
         
         session.add(player)
