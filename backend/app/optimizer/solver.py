@@ -3,6 +3,7 @@ from pulp import LpProblem, LpMaximize, LpVariable, lpSum, LpBinary, LpStatus
 from sqlmodel import Session, select
 from app.db import engine
 from app.models import Player, PlayerSlate, PlayerSlotEligibility
+from app.optimizer.rulesets import RULESETS
 
 # # Salary cap variable - will change dynamically based on contest
 # salary_cap = 60000
@@ -19,7 +20,7 @@ from app.models import Player, PlayerSlate, PlayerSlotEligibility
 
 def main():
     with Session(engine) as session:
-        result = build_lineup(session)
+        result = build_lineup(session, sport="NFL", site="DraftKings")
         if result is None:
             print("No valid lineup found")
         else:
@@ -30,21 +31,18 @@ def main():
             print(f"\nTotal salary: ${total_salary}")
             
 
-def build_lineup(session, salary_cap=55000, slot_requirements=None):
+def build_lineup(session, salary_cap=None, slot_requirements=None, sport="NBA", site="DraftKings"):
+    ruleset = RULESETS[(site, "classic", sport)]
+    if salary_cap is None:
+        salary_cap = ruleset.salary_cap
     if slot_requirements is None:
-        slot_requirements = {
-            "QB": 1,
-            "RB": 2,
-            "WR": 3,
-            "TE": 1,
-            "FLEX": 1,
-            "DST": 1,
-        }
+        slot_requirements = ruleset.slot_requirements
     
     statement = (
         select(Player, PlayerSlate, PlayerSlotEligibility)
+        .where(Player.sport == sport, PlayerSlate.site == site)
         .join(PlayerSlate, PlayerSlate.player_id == Player.id)
-        .join(PlayerSlotEligibility, PlayerSlotEligibility.player_slate_id ==PlayerSlate.id)
+        .join(PlayerSlotEligibility, PlayerSlotEligibility.player_slate_id == PlayerSlate.id)
     )
     rows = session.exec(statement).all()
 

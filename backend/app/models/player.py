@@ -15,6 +15,7 @@ class ContestType(str, Enum):
     SHOWDOWN = "showdown"
 
 class EligiblePosition(str, Enum):
+    # NFL / CFB
     QB = "QB"
     RB = "RB"
     WR = "WR"
@@ -22,6 +23,28 @@ class EligiblePosition(str, Enum):
     FLEX = "FLEX"
     DST = "DST"
     CPT = "CPT"
+    SUPER_FLEX = "Super FLEX"
+    # MLB
+    P = "P"
+    C = "C"
+    ONE_B = "1B"
+    TWO_B = "2B"
+    THREE_B = "3B"
+    SS = "SS"
+    OF = "OF"
+    # NBA
+    PG = "PG"
+    SG = "SG"
+    SF = "SF"
+    PF = "PF"
+    G = "G"
+    F = "F"
+    UTIL = "UTIL"
+    # NHL
+    W = "W"
+    D = "D"
+    # PGA
+    GOLFER = "GOLFER"
 
 class Player(SQLModel, table=True):
     __tablename__ = "player"
