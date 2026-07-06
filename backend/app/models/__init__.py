@@ -1,1 +1,10 @@
-from .player import Player, PlayerSlate, PlayerSlotEligibility, Sport, ContestType, EligiblePosition
+from .player import (
+    Player, 
+    PlayerSlate, 
+    PlayerSlotEligibility, 
+    ProjectionSource,
+    SlateProjection,
+    Sport, 
+    ContestType, 
+    EligiblePosition
+)

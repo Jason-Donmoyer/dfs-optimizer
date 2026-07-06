@@ -73,3 +73,16 @@ class PlayerSlotEligibility(SQLModel, table=True):
     slot: EligiblePosition
     player_slate: Optional["PlayerSlate"] = Relationship(back_populates="slot_eligibility")
 
+class ProjectionSource(SQLModel, table=True):
+    __tablename__ = "projection_source"
+    id: Optional[int] = Field(default=None, primary_key=True)
+    name: str
+    default_weight: float
+
+class SlateProjection(SQLModel, table=True):
+    __tablename__ = "slate_projection"
+    id: Optional[int] = Field(default=None, primary_key=True)
+    player_slate_id: Optional[int] = Field(default=None, foreign_key="player_slate.id")
+    source_id: Optional[int] = Field(default=None, foreign_key="projection_source.id")
+    projection: float
+
