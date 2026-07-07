@@ -4,6 +4,7 @@ from sqlmodel import Session, select
 from app.db import engine
 from app.models import Player, PlayerSlate, PlayerSlotEligibility
 from app.optimizer.rulesets import RULESETS
+from app.optimizer.projections import get_blended_projection
 
 # # Salary cap variable - will change dynamically based on contest
 # salary_cap = 60000
@@ -46,6 +47,17 @@ def build_lineup(session, salary_cap=None, slot_requirements=None, sport="NBA", 
     )
     rows = session.exec(statement).all()
 
+    # Get blended projections 
+    slate_ids = {slate.id for player, slate, eligibility in rows}
+    slate_lookup = {slate.id: slate for player, slate, eligibility in rows}
+
+    blended_projections = {}
+    for slate_id in slate_ids:
+        blended = get_blended_projection(session, slate_id)
+        if blended is None:
+            blended = slate_lookup[slate_id].projection
+        blended_projections[slate_id] = blended
+
     # Problem
     prob = LpProblem("DFS_Lineup", LpMaximize)
 
@@ -56,7 +68,7 @@ def build_lineup(session, salary_cap=None, slot_requirements=None, sport="NBA", 
     }
 
     # Objective
-    prob += lpSum(x[(player.id, eligibility.slot)] * slate.projection for player, slate, eligibility in rows)
+    prob += lpSum(x[(player.id, eligibility.slot)] * blended_projections[slate.id] for player, slate, eligibility in rows)
 
     # CONSTRAINTS
 
