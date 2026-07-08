@@ -21,7 +21,7 @@ from app.optimizer.projections import get_blended_projection
 
 def main():
     with Session(engine) as session:
-        result = build_lineup(session, sport="NFL", site="DraftKings")
+        result = build_lineup(session, sport="MLB", site="DraftKings")
         if result is None:
             print("No valid lineup found")
         else:

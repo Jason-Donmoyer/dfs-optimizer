@@ -11,7 +11,7 @@ def health():
     return {"status": "ok"}
 
 @app.get("/lineup")
-def get_lineup(sport: str = "NBA", site="DraftKings", session: Session = Depends(get_session)):
+def get_lineup(sport: str = "MLB", site="DraftKings", session: Session = Depends(get_session)):
     result = build_lineup(session, sport=sport, site=site)
     if result is None:
         return {"error": "No valid lineup found"}

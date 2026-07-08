@@ -1,3 +1,4 @@
+from sqlalchemy import Column, Enum as SAEnum
 from sqlmodel import SQLModel, Field, Relationship
 from enum import Enum
 from typing import Optional, List
@@ -65,12 +66,17 @@ class PlayerSlate(SQLModel, table=True):
     projection: float
     slot_eligibility: List["PlayerSlotEligibility"] = Relationship(back_populates="player_slate")
     player: Optional["Player"] = Relationship(back_populates="slates")
+    projections: List["SlateProjection"] = Relationship(back_populates="player_slate")
 
 class PlayerSlotEligibility(SQLModel, table=True):
     __tablename__ = "player_slot_eligibility"
     id: Optional[int] = Field(default=None, primary_key=True)
     player_slate_id: Optional[int] = Field(default=None, foreign_key="player_slate.id")
-    slot: EligiblePosition
+    slot: EligiblePosition = Field(
+        sa_column=Column(
+            SAEnum(EligiblePosition, values_callable=lambda x: [e.value for e in x], name="eligibleposition")
+        )
+    )
     player_slate: Optional["PlayerSlate"] = Relationship(back_populates="slot_eligibility")
 
 class ProjectionSource(SQLModel, table=True):
@@ -78,6 +84,7 @@ class ProjectionSource(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     name: str
     default_weight: float
+    slate_projection: List["SlateProjection"] = Relationship(back_populates="source")
 
 class SlateProjection(SQLModel, table=True):
     __tablename__ = "slate_projection"
@@ -85,4 +92,6 @@ class SlateProjection(SQLModel, table=True):
     player_slate_id: Optional[int] = Field(default=None, foreign_key="player_slate.id")
     source_id: Optional[int] = Field(default=None, foreign_key="projection_source.id")
     projection: float
+    player_slate: Optional["PlayerSlate"] = Relationship(back_populates="projections")
+    source: Optional["ProjectionSource"] = Relationship(back_populates="slate_projection")
 
