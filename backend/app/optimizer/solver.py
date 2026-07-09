@@ -33,7 +33,10 @@ def main():
             
 
 def build_lineup(session, salary_cap=None, slot_requirements=None, sport="NBA", site="DraftKings"):
-    ruleset = RULESETS[(site, "classic", sport)]
+    try:
+        ruleset = RULESETS[(site, "classic", sport)]
+    except KeyError:
+        return None
     if salary_cap is None:
         salary_cap = ruleset.salary_cap
     if slot_requirements is None:
@@ -106,7 +109,7 @@ def build_lineup(session, salary_cap=None, slot_requirements=None, sport="NBA", 
                 "name": player.name,
                 "slot": eligibility.slot.value,
                 "salary": slate.salary,
-                "projection": slate.projection,
+                "projection": round(blended_projections[slate.id], 2),
             })
     return selected_lineup
 
