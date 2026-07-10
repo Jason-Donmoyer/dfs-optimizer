@@ -1,7 +1,7 @@
 from app.db import engine
 from app.models import Player, PlayerSlate, PlayerSlotEligibility, Sport, ContestType, EligiblePosition
 from app.optimizer.compound_slots import get_extra_slots
-from sqlmodel import Session
+from sqlmodel import Session, select
 
 players_data = [
     {
@@ -413,30 +413,50 @@ players_data = [
 
 with Session(engine) as session:
     for data in players_data:
-        player = Player(
-            name=data["name"],
-            sport=data["sport"],
-            team=data["team"],
-            real_position=data["real_position"],
-        )
-        slate = PlayerSlate(
-            player=player,
-            site="DraftKings",
-            contest_type=ContestType.CLASSIC,
-            salary=data["salary"],
-            projection=data["projection"],
-        )
-        for slot in data["slots"]:
-            slot_eligibility = PlayerSlotEligibility(
-                slot=slot,
-                player_slate=slate,
+        existing_player = session.exec(
+            select(Player).where(Player.name == data["name"], Player.team == data["team"])
+        ).first()
+
+        if existing_player is not None:
+            player = existing_player
+        else:
+            player = Player(
+                name=data["name"],
+                sport=data["sport"],
+                team=data["team"],
+                real_position=data["real_position"],
             )
-        extra_slots = get_extra_slots("DraftKings", data["sport"].value, data["real_position"])
-        for slot in extra_slots:
-            slot_eligibility = PlayerSlotEligibility(
-                slot=slot,
-                player_slate=slate
+
+        existing_slate = session.exec(
+            select(PlayerSlate).where(
+                PlayerSlate.player_id == player.id,
+                PlayerSlate.site == "DraftKings",
             )
+        ).first()
+
+        if existing_slate is not None:
+            existing_slate.salary = data["salary"]
+            existing_slate.projection = data["projection"]
+            slate = existing_slate
+        else:
+            slate = PlayerSlate(
+                player=player,
+                site="DraftKings",
+                contest_type=ContestType.CLASSIC,
+                salary=data["salary"],
+                projection=data["projection"],
+            )
+            for slot in data["slots"]:
+                slot_eligibility = PlayerSlotEligibility(
+                    slot=slot,
+                    player_slate=slate,
+                )
+            extra_slots = get_extra_slots("DraftKings", data["sport"].value, data["real_position"])
+            for slot in extra_slots:
+                slot_eligibility = PlayerSlotEligibility(
+                    slot=slot,
+                    player_slate=slate
+                )
         
         session.add(player)
 
