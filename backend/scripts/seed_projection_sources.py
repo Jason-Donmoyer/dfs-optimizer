@@ -4,8 +4,8 @@ from sqlmodel import Session
 
 sources = [
     ProjectionSource(name="DraftKings FPPG", default_weight=0.2),
-    ProjectionSource(name="RotoWire", default_weight=0.5),
-    ProjectionSource(name="FreeSource", default_weight=0.3),
+    ProjectionSource(name="LineupExperts", default_weight=0.5),
+    # ProjectionSource(name="FreeSource", default_weight=0.3),
 ]
 
 with Session(engine) as session:
