@@ -33,10 +33,9 @@ def main():
             
 
 def build_lineup(session, salary_cap=None, slot_requirements=None, sport="NBA", site="DraftKings"):
-    try:
-        ruleset = RULESETS[(site, "classic", sport)]
-    except KeyError:
-        return None
+    ruleset = RULESETS.get((site, "classic", sport))
+    if ruleset is None:
+        raise ValueError(f"No ruleset found for site='{site}', sport='{sport}'.")
     if salary_cap is None:
         salary_cap = ruleset.salary_cap
     if slot_requirements is None:
